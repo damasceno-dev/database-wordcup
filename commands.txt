@@ -1,0 +1,94 @@
+Commands to create the database and the tables:
+psql --username=freecodecamp --dbname=postgres
+postgres=> CREATE DATABASE worldcup;
+CREATE DATABASE
+postgres=> \l
+                                 List of databases
+     Name     |    Owner     | Encoding | Collate |  Ctype  |   Access privileges   
+--------------+--------------+----------+---------+---------+-----------------------
+ postgres     | postgres     | UTF8     | C.UTF-8 | C.UTF-8 | 
+ template0    | postgres     | UTF8     | C.UTF-8 | C.UTF-8 | =c/postgres          +
+              |              |          |         |         | postgres=CTc/postgres
+ template1    | postgres     | UTF8     | C.UTF-8 | C.UTF-8 | =c/postgres          +
+              |              |          |         |         | postgres=CTc/postgres
+ worldcup     | freecodecamp | UTF8     | C.UTF-8 | C.UTF-8 | 
+ worldcuptest | postgres     | UTF8     | C.UTF-8 | C.UTF-8 | 
+(5 rows)
+
+postgres=> \c worldcup
+SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
+You are now connected to database "worldcup" as user "freecodecamp".
+worldcup=> CREATE TABLE teams();
+worldcup=> CREATE TABLE games();
+worldcup=> ALTER TABLE teams ADD COLUMN team_id SERIAL PRIMARY KEY;
+worldcup=> ALTER TABLE teams ADD COLUMN name VARCHAR(15) UNIQUE NOT NULL;
+worldcup=> ALTER TABLE games ADD COLUMN game_id SERIAL PRIMARY KEY;
+worldcup=> ALTER TABLE games ADD COLUMN year INT NOT NULL;
+worldcup=> ALTER TABLE games ADD COLUMN round VARCHAR(15) NOT NULL;                         ^
+worldcup=> ALTER TABLE games add column winner_id INT;
+worldcup=> ALTER TABLE games ADD FOREIGN KEY(winner_id) REFERENCES teams(team_id);
+worldcup=> ALTER TABLE games add column opponent_id INT;
+worldcup=> ALTER TABLE games ADD FOREIGN KEY(opponent_id) REFERENCES teams(team_id);
+worldcup=> ALTER TABLE games ALTER COLUMN winner_id SET NOT NULL;
+worldcup=> ALTER TABLE games ALTER COLUMN opponent_id SET NOT NULL;
+worldcup=> ALTER TABLE games ADD COLUMN winner_goals INT NOT NULL;
+worldcup=> ALTER TABLE games ADD COLUMN opponent_goals INT NOT NULL;
+
+
+worldcup=> SELECT * FROM teams;
+ team_id | name 
+---------+------
+(0 rows)
+
+worldcup=> SELECT * FROM games;
+ game_id | year | round | winner_id | opponent_id | winner_goals | opponent_goals 
+---------+------+-------+-----------+-------------+--------------+----------------
+(0 rows)
+
+worldcup=> \d teams
+                                      Table "public.teams"
+ Column  |         Type          | Collation | Nullable |                Default                 
+---------+-----------------------+-----------+----------+----------------------------------------
+ team_id | integer               |           | not null | nextval('teams_team_id_seq'::regclass)
+ name    | character varying(15) |           | not null | 
+Indexes:
+    "teams_pkey" PRIMARY KEY, btree (team_id)
+    "teams_name_key" UNIQUE CONSTRAINT, btree (name)
+Referenced by:
+    TABLE "games" CONSTRAINT "games_opponent_id_fkey" FOREIGN KEY (opponent_id) REFERENCES teams(team_id)
+    TABLE "games" CONSTRAINT "games_winner_id_fkey" FOREIGN KEY (winner_id) REFERENCES teams(team_id)
+
+worldcup=> \d games
+                                          Table "public.games"
+     Column     |         Type          | Collation | Nullable |                Default                 
+----------------+-----------------------+-----------+----------+----------------------------------------
+ game_id        | integer               |           | not null | nextval('games_game_id_seq'::regclass)
+ year           | integer               |           | not null | 
+ round          | character varying(15) |           | not null | 
+ winner_id      | integer               |           | not null | 
+ opponent_id    | integer               |           | not null | 
+ winner_goals   | integer               |           | not null | 
+ opponent_goals | integer               |           | not null | 
+Indexes:
+    "games_pkey" PRIMARY KEY, btree (game_id)
+Foreign-key constraints:
+    "games_opponent_id_fkey" FOREIGN KEY (opponent_id) REFERENCES teams(team_id)
+    "games_winner_id_fkey" FOREIGN KEY (winner_id) REFERENCES teams(team_id)
+
+year,round,winner,opponent,winner_goals,opponent_goals
+2018,Final,France,Croatia,4,2
+2018,Third Place,Belgium,England,2,0
+2018,Semi-Final,Croatia,England,2,1
+2018,Semi-Final,France,Belgium,1,0
+2018,Quarter-Final,Croatia,Russia,3,2
+2018,Quarter-Final,England,Sweden,2,0
+2018,Quarter-Final,Belgium,Brazil,2,1
+2018,Quarter-Final,France,Uruguay,2,0
+2018,Eighth-Final,England,Colombia,2,1
+
+
+CREATE TABLE teams();CREATE TABLE games();ALTER TABLE teams ADD COLUMN team_id SERIAL PRIMARY KEY;ALTER TABLE teams ADD COLUMN name VARCHAR(15) UNIQUE NOT NULL;ALTER TABLE games ADD COLUMN game_id SERIAL PRIMARY KEY;ALTER TABLE games ADD COLUMN year INT NOT NULL;ALTER TABLE games ADD COLUMN round VARCHAR(15) NOT NULL;ALTER TABLE games add column winner_id INT;ALTER TABLE games ADD FOREIGN KEY(winner_id) REFERENCES teams(team_id);ALTER TABLE games add column opponent_id INT;ALTER TABLE games ADD FOREIGN KEY(opponent_id) REFERENCES teams(team_id);ALTER TABLE games ALTER COLUMN winner_id SET NOT NULL;ALTER TABLE games ALTER COLUMN opponent_id SET NOT NULL;ALTER TABLE games ADD COLUMN winner_goals INT NOT NULL;ALTER TABLE games ADD COLUMN opponent_goals INT NOT NULL;
+
+
+
+select year, round, w.name, o.name, winner_goals, opponent_goals from games g join teams w on g.winner_id = w.team_id join teams o on g.opponent_id = o.team_id;
