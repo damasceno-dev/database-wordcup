@@ -1,6 +1,5 @@
-
 # World cup database FCC Challenge
-![World cup image](https://kslsports.com/wp-content/uploads/2022/12/Everything-You-Need-to-Know-About-the-2022-World-Cup-in-Qatar-2.jpeg "This is a sample image.")
+![World cup image](img.jpeg "World Cup Logo")
 
 # FCC Project #2 required to get Relational Database Certification.
 
